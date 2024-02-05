@@ -135,6 +135,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:PlusTimeIT/vscode-php-file-refactoring.git"
+    "url": "https://github.com/PlusTimeIT/vscode-php-file-refactoring.git"
   }
 }
