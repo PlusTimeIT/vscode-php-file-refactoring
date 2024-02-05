@@ -6,6 +6,10 @@
   "engines": {
     "vscode": "^1.85.0"
   },
+  "pricing": "Free",
+  "sponsor": {
+    "url": "https://github.com/sponsors/PlusTimeIT/"
+  },
   "categories": [
     "Other"
   ],
@@ -127,5 +131,9 @@
   },
   "dependencies": {
     "php-parser": "^3.1.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:PlusTimeIT/vscode-php-file-refactoring.git"
   }
 }
