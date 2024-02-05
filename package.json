@@ -4,6 +4,7 @@
   "description": "When renaming or moving a PHP file, this plugin will update all instances within your project including namespaces.",
   "version": "0.0.1",
   "publisher": "PlusTimeIT",
+  "icon": "images/new-php-logo.png",
   "engines": {
     "vscode": "^1.85.0"
   },
