@@ -1,0 +1,131 @@
+{
+  "name": "php-file-refactoring",
+  "displayName": "PHP File Refactoring",
+  "description": "When renaming or moving a PHP file, this plugin will update all instances within your project including namespaces.",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "phpFileRefactoring.openFile",
+        "title": "Open FIle"
+      },
+      {
+        "command": "phpFileRefactoring.clearAll",
+        "title": "Clear All",
+        "icon": "$(notifications-clear)"
+      },
+      {
+        "command": "phpFileRefactoring.processRefactoring",
+        "title": "Process Refactoring",
+        "icon": "$(notebook-state-success)"
+      },
+      {
+        "command": "phpFileRefactoring.toggleSafeRefactoring",
+        "title": "Toggle Safe Refactoring",
+        "icon": "$(notebook-state-success)"
+      }
+    ],
+    "configuration": {
+      "title": "PHP File Refactoring",
+      "properties": {
+        "phpFileRefactoring.excludeFolders": {
+          "type": "array",
+          "description": "Folders to exclude from file search when refactoring",
+          "default": [
+            "**/vendor/**"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "phpFileRefactoring.excludedFiles": {
+          "type": "boolean",
+          "description": "Excludes files from VScodes default files exclude list",
+          "default": true
+        },
+        "phpFileRefactoring.excludedSearch": {
+          "type": "boolean",
+          "description": "Excludes files from VScodes default search exclude list",
+          "default": true
+        },
+        "phpFileRefactoring.safeRefactoring": {
+          "type": "boolean",
+          "description": "Safe Refactoring - Approval Only",
+          "default": false
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "php-file-refactoring",
+          "title": "PHP File Refactoring",
+          "icon": "$(refactor-preview-view-icon)",
+          "when": "phpFileRefactoring.safeRefactoring"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "phpFileRefactoring.clearAll",
+          "when": "view == refactor-reviews",
+          "group": "navigation"
+        },
+        {
+          "command": "phpFileRefactoring.processRefactoring",
+          "when": "view == refactor-reviews",
+          "group": "navigation"
+        }
+      ]
+    },
+    "views": {
+      "php-file-refactoring": [
+        {
+          "id": "refactor-reviews",
+          "name": "Review Refactor"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "refactor-reviews",
+        "contents": "Safe refactoring is turned on by default.\nRename or Move a PHP file to start seeing changes here."
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts --fix",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.6",
+    "@types/node": "18.x",
+    "@types/prettier": "^3.0.0",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^6.19.1",
+    "@typescript-eslint/parser": "^6.19.1",
+    "@vscode/test-cli": "^0.0.4",
+    "@vscode/test-electron": "^2.3.9",
+    "eslint": "^8.56.0",
+    "prettier": "^3.2.4",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "php-parser": "^3.1.5"
+  }
+}
