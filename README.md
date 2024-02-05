@@ -8,8 +8,9 @@ An extension for helping refactor PHP files when renaming or moving a file betwe
 
 - Safe Refactoring - When turned on (active by default), all refactoring changes will appear in the activity bar (refactoring icon). This is triggered by either moving a PHP file or renaming a PHP file.
 - Utilizes a PHP parser to create an AST array for better identification of potential changes.
-- Attempts to replace both fully qualified names and unqualified.
-- If your project has a `composer.json` file it will attempt to make your autoload PSR-4 namespaces to
+- Replaces both fully qualified names and unqualified names where possible.
+- If your project has a `composer.json` file it will attempt to map your autoload PSR-4 namespaces to any changes that have occurred.
+- When files are moved, it will update that files namespace, along with any occurrences throughout our project.
 
 ![Safe Refactoring](images/SafeRefactoring.gif 'Safe Refactoring')
 
