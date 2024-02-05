@@ -2,7 +2,7 @@
   "name": "php-file-refactoring",
   "displayName": "PHP File Refactoring",
   "description": "When renaming or moving a PHP file, this plugin will update all instances within your project including namespaces.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "PlusTimeIT",
   "icon": "images/new-php-logo.png",
   "engines": {
