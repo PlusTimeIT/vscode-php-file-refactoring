@@ -1,6 +1,6 @@
 # PHP File Refactoring
 
-> Note: This is a new extension, if you encounter any bugs or issues please make sure you report them.
+> Note: This is a new extension, if you encounter any bugs or issues please make sure you report them. [Report Issues](https://github.com/PlusTimeIT/vscode-php-file-refactoring/issues)
 
 An extension for helping refactor PHP files when renaming or moving a file between namespaces. It's meant to follow a similar process to PHPStorms File Refactoring. Whilst it might not be as powerful, it does have a safe refactoring option.
 
