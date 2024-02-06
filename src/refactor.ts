@@ -34,6 +34,7 @@ export async function applyEdits(
     const edit = new vscode.WorkspaceEdit();
     let iterationID = 0;
     traverseAst(ast, async (node: any) => {
+      console.log('KIND: ', node.kind);
       if (node.kind === 'namespace' && node.name === searchNamespace) {
         output(file.newUri.fsPath, `Own class detected - ${node.name}`);
         // is the namespace fpr the parent file (the one being renamed)
@@ -47,7 +48,12 @@ export async function applyEdits(
             new vscode.Position(node.loc.start.line - 1, searchNamespace.length + 10)
           );
         }
-      } else if (node.kind === 'class') {
+      } else if (
+        node.kind === 'class' ||
+        node.kind === 'interface' ||
+        node.kind === 'trait' ||
+        node.kind === 'enum'
+      ) {
         if (node.name.name === searchClassName && isParentNamespace) {
           if (namespaceRequiresUpdate) {
             // update namespace

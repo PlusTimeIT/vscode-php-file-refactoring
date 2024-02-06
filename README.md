@@ -11,6 +11,7 @@ An extension for helping refactor PHP files when renaming or moving a file betwe
 - Replaces both fully qualified names and unqualified names where possible.
 - If your project has a `composer.json` file it will attempt to map your autoload PSR-4 namespaces to any changes that have occurred.
 - When files are moved, it will update that files namespace, along with any occurrences throughout our project.
+- Clicking on the reviews will take you to the file, line and column of the proposed change.
 
 ![Safe Refactoring](images/SafeRefactoring.gif 'Safe Refactoring')
 
@@ -33,9 +34,15 @@ This extension contributes the following settings:
 
 ## Release Notes
 
-### 0.1.0
+### 0.1.2
 
-Initial release of php file refactoring
+Fix bug with interfaces, traits and enums. Added MIT license file
+
+---
+
+### 0.1.1
+
+- Initial release of php file refactoring, added Badge to activity icon for review count
 
 ---
 

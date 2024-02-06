@@ -64,6 +64,7 @@ export async function activate(context: vscode.ExtensionContext) {
     }
 
     if (shouldRun && getMode() === 'refactor') {
+      console.log('ATTEMPTING TO REFRACTOR');
       for (const file of e.files) {
         if (file.newUri.fsPath.endsWith('.php')) {
           output(`PHP file detected... running checks`);
