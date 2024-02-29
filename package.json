@@ -54,6 +54,11 @@
             "type": "string"
           }
         },
+        "phpFileRefactoring.excludeOwnFileTypeName": {
+          "type": "boolean",
+          "description": "If you have another extension that handles class renaming, you can disable this feature",
+          "default": true
+        },
         "phpFileRefactoring.excludedFiles": {
           "type": "boolean",
           "description": "Excludes files from VScodes default files exclude list",

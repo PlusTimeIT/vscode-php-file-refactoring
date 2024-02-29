@@ -11,6 +11,7 @@ export function initiateTreeView(): void {
 }
 
 export function setBadge(badge: number | undefined): void {
+  console.log('setting badge - ', badge);
   if (badge !== undefined) {
     refactorTreeView.badge = { tooltip: 'Awaiting refactoring', value: badge };
   } else {

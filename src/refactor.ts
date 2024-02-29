@@ -15,7 +15,9 @@ export async function applyEdits(
   const isSafeRefactoring = await vscode.workspace
     .getConfiguration('phpFileRefactoring')
     .get('safeRefactoring');
-
+  const shouldUpdateOwnClass = await vscode.workspace
+    .getConfiguration('phpFileRefactoring')
+    .get('excludeOwnFileTypeName');
   try {
     const content = await vscode.workspace.fs.readFile(uri);
     const code = new TextDecoder().decode(content);
@@ -34,7 +36,6 @@ export async function applyEdits(
     const edit = new vscode.WorkspaceEdit();
     let iterationID = 0;
     traverseAst(ast, async (node: any) => {
-      console.log('KIND: ', node.kind);
       if (node.kind === 'namespace' && node.name === searchNamespace) {
         output(file.newUri.fsPath, `Own class detected - ${node.name}`);
         // is the namespace fpr the parent file (the one being renamed)
@@ -55,6 +56,12 @@ export async function applyEdits(
         node.kind === 'enum'
       ) {
         if (node.name.name === searchClassName && isParentNamespace) {
+          console.log(
+            'SHOULD BE PARENT FILE',
+            file.newUri.fsPath,
+            'SHOULD UPDATE OWN CLASS',
+            shouldUpdateOwnClass
+          );
           if (namespaceRequiresUpdate) {
             // update namespace
             // +10 on column to account for the word namespace (including space)
@@ -90,7 +97,7 @@ export async function applyEdits(
             new vscode.Position(node.name.loc.end.line - 1, node.name.loc.end.column)
           );
 
-          if (searchClassName !== replaceClassName) {
+          if (searchClassName !== replaceClassName && shouldUpdateOwnClass) {
             if (isSafeRefactoring) {
               // check if file has review tree item to add to children, if not add it.
               refactorProvider.addChild(

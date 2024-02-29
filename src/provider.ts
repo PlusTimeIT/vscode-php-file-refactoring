@@ -38,6 +38,7 @@ export class RefactorDataProvider implements vscode.TreeDataProvider<ReviewItem>
   }
 
   async clear(skipChecks: boolean = false): Promise<void> {
+    console.log('clearing');
     // revert any rename or move changes.
     if (!skipChecks) {
       const revertEdit = new vscode.WorkspaceEdit();
@@ -82,7 +83,8 @@ export class RefactorDataProvider implements vscode.TreeDataProvider<ReviewItem>
       }
     }
     await vscode.workspace.applyEdit(edit);
-    this.clear(true);
+    console.log('processed - clear');
+    await this.clear(true);
   }
   addChild(file: RenameFile, element: ReviewItem): Thenable<ReviewItem[] | undefined> {
     let index: number = refactorProvider.findIndexById(file.newUri.fsPath);

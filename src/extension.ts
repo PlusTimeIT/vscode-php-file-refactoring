@@ -41,7 +41,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
   vscode.workspace.onDidRenameFiles(async e => {
     output(`Rename or file move detected.`);
-    // check if dataprovider has awaiting items:
+    // check if data provider has awaiting items:
     let shouldRun = true;
     if (isSafeRefactoring && getMode() === 'refactor') {
       output(`Safe refactoring is enabled.`);

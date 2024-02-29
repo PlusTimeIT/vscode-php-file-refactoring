@@ -27,12 +27,17 @@ This extension contributes the following settings:
 - `phpFileRefactoring.excludedFiles`: If you already have excluded files set up with VS codes default settings, this will also exclude these files when refactoring.
 - `phpFileRefactoring.excludedSearch`: If you already have excluded search options set up with VS codes default settings, this will also exclude these options when refactoring.
 - `phpFileRefactoring.safeRefactoring`: All changes (except original file rename or move) need to be reviewed or confirmed.
+- `phpFileRefactoring.excludeOwnFileTypeName`: Exclude own file, name type (class, trait, enum etc.) when refactoring it's own file
 
 ## Known Issues
 
 - PHP files that are moved with no namespace won't add additional namespace.
 
 ## Release Notes
+
+### 0.1.3
+
+Added option to disable name type update in settings, if you have another plugin that updates the files type name (within it's self) this setting will stop this extension from updating it.
 
 ### 0.1.2
 
