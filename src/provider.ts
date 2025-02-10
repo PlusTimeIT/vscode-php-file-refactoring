@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { setMode } from './mode';
 import { RenameFile } from './utility';
 import { setBadge } from './treeview';
+import { output } from './log';
 
 export class RefactorDataProvider implements vscode.TreeDataProvider<ReviewItem> {
   private _onDidChangeTreeData: vscode.EventEmitter<ReviewItem | undefined> =
@@ -38,7 +39,6 @@ export class RefactorDataProvider implements vscode.TreeDataProvider<ReviewItem>
   }
 
   async clear(skipChecks: boolean = false): Promise<void> {
-    console.log('clearing');
     // revert any rename or move changes.
     if (!skipChecks) {
       const revertEdit = new vscode.WorkspaceEdit();
@@ -49,7 +49,6 @@ export class RefactorDataProvider implements vscode.TreeDataProvider<ReviewItem>
         for (const reviewItem of children ?? []) {
           // only checked children will be processed.
           setMode('clear');
-          console.log('CLEARING:', reviewItem.resourceUri, reviewItem.oldUri);
           revertEdit.renameFile(reviewItem.resourceUri, reviewItem.oldUri); // Swap oldUri and newUri to revert the change
         }
       }
@@ -82,15 +81,41 @@ export class RefactorDataProvider implements vscode.TreeDataProvider<ReviewItem>
         );
       }
     }
-    await vscode.workspace.applyEdit(edit);
-    console.log('processed - clear');
+
+    const shouldSaveAfterEditing = await vscode.workspace
+      .getConfiguration('phpFileRefactoring')
+      .get<boolean>('autoSaveFiles');
+
+    const success = await vscode.workspace.applyEdit(edit);
+    if (success) {
+      output('Edits applied successfully, now saving documents.');
+
+      if (shouldSaveAfterEditing) {
+        // Save all modified documents
+        for (const item of this.data) {
+          const children = item?.children?.filter(
+            item => item.checkboxState === vscode.TreeItemCheckboxState.Checked
+          );
+          for (const reviewItem of children ?? []) {
+            const document = await vscode.workspace.openTextDocument(reviewItem.resourceUri);
+            if (!document.isDirty) {
+              continue;
+            } // Skip if not modified
+            await document.save();
+            output(`Saved: ${reviewItem.resourceUri.fsPath}`);
+          }
+        }
+      }
+    } else {
+      output('Failed to apply edits.');
+    }
     await this.clear(true);
   }
+
   addChild(file: RenameFile, element: ReviewItem): Thenable<ReviewItem[] | undefined> {
     let index: number = refactorProvider.findIndexById(file.newUri.fsPath);
     if (index === -1) {
       // create parent
-      console.log('ADDED PARENT');
       this.addNode(
         new ReviewItem(
           file.newUri.fsPath,

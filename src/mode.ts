@@ -7,5 +7,8 @@ export function getMode(): mode {
 }
 
 export function setMode(value: mode): void {
-  currentMode = value;
+  if (value !== 'refactor' && value !== 'revert' && value !== 'clear') {
+    throw new Error(`Invalid mode: ${value}`);
+  }
+  currentMode = value as mode;
 }

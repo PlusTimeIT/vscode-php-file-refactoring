@@ -18,7 +18,7 @@
     "curly": "warn",
     "eqeqeq": "warn",
     "no-throw-literal": "warn",
-    "semi": "on",
+    "semi": "error",
     "indent": ["warn", 2] // Enforce 2 spaces indentation
   },
   "ignorePatterns": ["out", "dist", "**/*.d.ts"]

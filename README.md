@@ -27,13 +27,23 @@ This extension contributes the following settings:
 - `phpFileRefactoring.excludedFiles`: If you already have excluded files set up with VS codes default settings, this will also exclude these files when refactoring.
 - `phpFileRefactoring.excludedSearch`: If you already have excluded search options set up with VS codes default settings, this will also exclude these options when refactoring.
 - `phpFileRefactoring.safeRefactoring`: All changes (except original file rename or move) need to be reviewed or confirmed.
-- `phpFileRefactoring.excludeOwnFileTypeName`: Exclude own file, name type (class, trait, enum etc.) when refactoring it's own file
+- `phpFileRefactoring.excludeOwnFileTypeName`: Exclude own file, name type (class, trait, enum etc.) when refactoring it's own file.
+- `phpFileRefactoring.autoSaveFiles`: Automatically save files that are edited after making changes.
+- `phpFileRefactoring.composerJsonPath`: Path to composer file, if blank it will check for one in the project root directory.
 
 ## Known Issues
 
 - PHP files that are moved with no namespace won't add additional namespace.
 
 ## Release Notes
+
+## 0.1.4
+
+- Fixed issue with updating own class when renaming.
+- Fixed use item alias issues that removed the alias.
+- Added custom composer.json location in configuration
+- Added option to automatically save files on changes
+- Added tests for functionality
 
 ### 0.1.3
 

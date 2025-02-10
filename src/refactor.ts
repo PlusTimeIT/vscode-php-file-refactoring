@@ -11,34 +11,36 @@ export async function applyEdits(
   replaceClassName: string
 ): Promise<boolean> {
   const uri = file.newUri;
-  output('CHECKING FILE - LABEL - ', getFileNameFromUri(file.newUri), file.newUri.fsPath);
   const isSafeRefactoring = await vscode.workspace
     .getConfiguration('phpFileRefactoring')
-    .get('safeRefactoring');
-  const shouldUpdateOwnClass = await vscode.workspace
+    .get<boolean>('safeRefactoring');
+  const excludeOwnFileTypeName = await vscode.workspace
     .getConfiguration('phpFileRefactoring')
-    .get('excludeOwnFileTypeName');
+    .get<boolean>('excludeOwnFileTypeName');
   try {
-    const content = await vscode.workspace.fs.readFile(uri);
-    const code = new TextDecoder().decode(content);
-    var phpParser = require('php-parser');
+    let phpParser = require('php-parser');
     let parser = new phpParser({
       parser: { debug: false, suppressErrors: false, ast: { withPositions: true } }
     });
-    const ast = parser.parseCode(code);
+
     let requiresAlias = false;
     let shouldReplaceUQN = false;
     let isParentNamespace = false;
     let namespaceRequiresUpdate = false;
     let namespacePosition: null | vscode.Range = null;
-    const replaceFQN = replaceNamespace + '\\' + replaceClassName;
+    let replaceFQN = replaceNamespace + '\\' + replaceClassName;
+    let iterationID = 0;
+
+    const content = await vscode.workspace.fs.readFile(uri);
+    const code = new TextDecoder().decode(content);
+    const ast = parser.parseCode(code);
     const searchFQN = searchNamespace + '\\' + searchClassName;
     const edit = new vscode.WorkspaceEdit();
-    let iterationID = 0;
+
     traverseAst(ast, async (node: any) => {
       if (node.kind === 'namespace' && node.name === searchNamespace) {
-        output(file.newUri.fsPath, `Own class detected - ${node.name}`);
-        // is the namespace fpr the parent file (the one being renamed)
+        output(`Own class detected - ${node.name} in file: ${file.newUri.path}`);
+        // is the namespace for the parent file (the one being renamed)
         // set shouldReplaceUQN so class name is updated.
         isParentNamespace = true;
         if (searchNamespace !== replaceNamespace) {
@@ -56,12 +58,6 @@ export async function applyEdits(
         node.kind === 'enum'
       ) {
         if (node.name.name === searchClassName && isParentNamespace) {
-          console.log(
-            'SHOULD BE PARENT FILE',
-            file.newUri.fsPath,
-            'SHOULD UPDATE OWN CLASS',
-            shouldUpdateOwnClass
-          );
           if (namespaceRequiresUpdate) {
             // update namespace
             // +10 on column to account for the word namespace (including space)
@@ -97,7 +93,7 @@ export async function applyEdits(
             new vscode.Position(node.name.loc.end.line - 1, node.name.loc.end.column)
           );
 
-          if (searchClassName !== replaceClassName && shouldUpdateOwnClass) {
+          if (searchClassName !== replaceClassName && !excludeOwnFileTypeName) {
             if (isSafeRefactoring) {
               // check if file has review tree item to add to children, if not add it.
               refactorProvider.addChild(
@@ -135,6 +131,12 @@ export async function applyEdits(
             new vscode.Position(node.loc.start.line - 1, node.loc.start.column),
             new vscode.Position(node.loc.end.line - 1, node.loc.end.column)
           );
+          // check if item is aliased.
+          if (node.alias) {
+            replaceFQN = `${replaceFQN} as ${node.alias.name}`;
+            output(`Use item is aliased as ${node.alias.name}, update replaceFQN to ${replaceFQN}`);
+          }
+
           if (isSafeRefactoring) {
             // check if file has review tree item to add to children, if not add it.
             refactorProvider.addChild(
@@ -264,17 +266,21 @@ export async function applyEditsToWorkspace(
   let exclude = [
     ...((await vscode.workspace
       .getConfiguration('phpFileRefactoring')
-      .get('excludeFolders')) as string[])
+      .get<string[]>('excludeFolders')) as string[])
   ];
 
   if (await vscode.workspace.getConfiguration('phpFileRefactoring').get('excludedFiles')) {
     exclude.push(
-      ...Object.keys((await vscode.workspace.getConfiguration('files', null).get('exclude')) || {})
+      ...Object.keys(
+        (await vscode.workspace.getConfiguration('files', null).get<string[]>('exclude')) || {}
+      )
     );
   }
   if (await vscode.workspace.getConfiguration('phpFileRefactoring').get('excludedSearch')) {
     exclude.push(
-      ...Object.keys((await vscode.workspace.getConfiguration('search', null).get('exclude')) || {})
+      ...Object.keys(
+        (await vscode.workspace.getConfiguration('search', null).get<string[]>('exclude')) || {}
+      )
     );
   }
 

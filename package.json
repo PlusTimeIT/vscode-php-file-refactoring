@@ -2,7 +2,7 @@
   "name": "php-file-refactoring",
   "displayName": "PHP File Refactoring",
   "description": "When renaming or moving a PHP file, this plugin will update all instances within your project including namespaces.",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "publisher": "PlusTimeIT",
   "icon": "images/new-php-logo.png",
   "engines": {
@@ -44,6 +44,11 @@
     "configuration": {
       "title": "PHP File Refactoring",
       "properties": {
+        "phpFileRefactoring.safeRefactoring": {
+          "type": "boolean",
+          "description": "Safe Refactoring - Approval Only",
+          "default": false
+        },
         "phpFileRefactoring.excludeFolders": {
           "type": "array",
           "description": "Folders to exclude from file search when refactoring",
@@ -59,6 +64,11 @@
           "description": "If you have another extension that handles class renaming, you can disable this feature",
           "default": true
         },
+        "phpFileRefactoring.autoSaveFiles": {
+          "type": "boolean",
+          "description": "Automatically save files after changes have been made.",
+          "default": false
+        },
         "phpFileRefactoring.excludedFiles": {
           "type": "boolean",
           "description": "Excludes files from VScodes default files exclude list",
@@ -69,10 +79,10 @@
           "description": "Excludes files from VScodes default search exclude list",
           "default": true
         },
-        "phpFileRefactoring.safeRefactoring": {
-          "type": "boolean",
-          "description": "Safe Refactoring - Approval Only",
-          "default": false
+        "phpFileRefactoring.composerJsonPath": {
+          "type": "string",
+          "description": "Specify a custom path to composer.json if the workspace is a subfolder of a monolithic project.",
+          "default": ""
         }
       }
     },
@@ -131,7 +141,7 @@
     "@typescript-eslint/eslint-plugin": "^6.19.1",
     "@typescript-eslint/parser": "^6.19.1",
     "@vscode/test-cli": "^0.0.4",
-    "@vscode/test-electron": "^2.3.9",
+    "@vscode/test-electron": "^2.4.1",
     "eslint": "^8.56.0",
     "prettier": "^3.2.4",
     "typescript": "^5.3.3"

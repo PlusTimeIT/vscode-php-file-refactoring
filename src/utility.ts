@@ -40,11 +40,20 @@ export function getNamespaceFromFilePath(filePath: string): string {
 export function mapFolderToPsr4(folder: string, filePath: string): string {
   const workspaceFolder = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(filePath));
   if (!workspaceFolder) {
-    return folder.replace(/[\\\/]/g, '\\'); // Default mapping
+    return folder.replace(/[\\\/]/g, '\\');
   }
-  const composerJsonPath = path.join(workspaceFolder.uri.fsPath, 'composer.json');
+
+  // Check if a custom composer.json path is set
+  const customComposerPath = vscode.workspace
+    .getConfiguration('phpFileRefactoring')
+    .get<string>('composerJsonPath');
+
+  const composerJsonPath = customComposerPath
+    ? path.resolve(workspaceFolder.uri.fsPath, customComposerPath)
+    : path.join(workspaceFolder.uri.fsPath, 'composer.json');
+
   if (!fileExists(composerJsonPath)) {
-    return folder.replace(/[\\\/]/g, '\\'); // Default mapping
+    return folder.replace(/[\\\/]/g, '\\');
   }
 
   try {
@@ -53,17 +62,22 @@ export function mapFolderToPsr4(folder: string, filePath: string): string {
     const psr4Config = composerJson.autoload && composerJson.autoload['psr-4'];
 
     if (psr4Config) {
+      const folderToNamespace = folder.replace(/[\\\/]/g, '\\');
       for (const expectedNamespace in psr4Config) {
-        const mappedFolder = psr4Config[expectedNamespace].slice(0, -1);
-        if (folder === mappedFolder || folder.includes(mappedFolder)) {
-          return folder.replace(mappedFolder, expectedNamespace.slice(0, -1));
+        const mappedFolder = psr4Config[expectedNamespace].endsWith('/')
+          ? psr4Config[expectedNamespace].slice(0, -1).replace(/[\\\/]/g, '\\')
+          : psr4Config[expectedNamespace].replace(/[\\\/]/g, '\\');
+
+        if (folderToNamespace === mappedFolder || folderToNamespace.includes(mappedFolder)) {
+          return folderToNamespace.replace(mappedFolder, expectedNamespace.slice(0, -1));
         }
       }
     }
   } catch (error) {
     console.error('Error reading or parsing composer.json:', error);
   }
-  return folder.replace(/[\\\/]/g, '\\'); // Default mapping
+
+  return folder.replace(/[\\\/]/g, '\\');
 }
 
 export function traverseAst(node: any, callback: (node: any) => void) {

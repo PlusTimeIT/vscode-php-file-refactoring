@@ -7,10 +7,17 @@ import { ReviewItem, refactorProvider } from './provider';
 import { getMode, setMode } from './mode';
 import { initiateTreeView } from './treeview';
 
+let renamePromiseResolver: ((value?: any) => void) | null = null;
+
+export function waitForRenameEvent(): Promise<void> {
+  return new Promise(resolve => {
+    renamePromiseResolver = resolve;
+  });
+}
+
 //context: vscode.ExtensionContext
 export async function activate(context: vscode.ExtensionContext) {
   initiateLog();
-  console.log('Extension activated');
 
   context.subscriptions.push(
     vscode.commands.registerCommand('phpFileRefactoring.openFile', (node: ReviewItem) => {
@@ -37,7 +44,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
   const isSafeRefactoring = await vscode.workspace
     .getConfiguration('phpFileRefactoring')
-    .get('safeRefactoring');
+    .get<boolean>('safeRefactoring');
 
   vscode.workspace.onDidRenameFiles(async e => {
     output(`Rename or file move detected.`);
@@ -64,10 +71,8 @@ export async function activate(context: vscode.ExtensionContext) {
     }
 
     if (shouldRun && getMode() === 'refactor') {
-      console.log('ATTEMPTING TO REFRACTOR');
       for (const file of e.files) {
         if (file.newUri.fsPath.endsWith('.php')) {
-          output(`PHP file detected... running checks`);
           try {
             const oldFileName = path.basename(file.oldUri.fsPath, '.php');
             const newFileName = path.basename(file.newUri.fsPath, '.php');
@@ -75,12 +80,15 @@ export async function activate(context: vscode.ExtensionContext) {
             // Determine the old and new namespaces
             const oldNamespace = getNamespaceFromFilePath(file.oldUri.fsPath);
             const newNamespace = getNamespaceFromFilePath(file.newUri.fsPath);
+
             const mappedNamespace = mapFolderToPsr4(newNamespace, file.newUri.fsPath);
             const oldMappedNamespace = mapFolderToPsr4(oldNamespace, file.newUri.fsPath);
-            let currentNamespace = oldMappedNamespace;
-            output(`namespaces check ${oldMappedNamespace} to ${mappedNamespace}`);
-            // Read the file content
 
+            let currentNamespace = oldMappedNamespace;
+
+            output(`Namespaces check: old ${oldMappedNamespace} | new: ${mappedNamespace}`);
+
+            // Read the file content
             if (oldNamespace !== newNamespace) {
               output(
                 `Namespace requires update... current namespace updated to ${mappedNamespace}`
@@ -89,6 +97,7 @@ export async function activate(context: vscode.ExtensionContext) {
             }
 
             output(`Searching occurrence of ${oldMappedNamespace} in ${file.newUri.fsPath}`);
+
             await applyEditsToFile(
               file,
               oldMappedNamespace,
@@ -96,6 +105,7 @@ export async function activate(context: vscode.ExtensionContext) {
               currentNamespace,
               newFileName
             );
+
             output(`Updates completed for: ${currentNamespace}`);
 
             // check if file is in current dataProvider
@@ -122,11 +132,9 @@ export async function activate(context: vscode.ExtensionContext) {
           'No refactoring was done. Reverting moved or renamed file.'
         );
         // Revert the file renaming or moving
-        // Revert the file renaming or moving
         const revertEdit = new vscode.WorkspaceEdit();
         setMode('revert');
         e.files.forEach(file => {
-          console.log('CONVERTING BACK:', file.newUri, file.oldUri);
           revertEdit.renameFile(file.newUri, file.oldUri); // Swap oldUri and newUri to revert the change
         });
 
@@ -135,6 +143,11 @@ export async function activate(context: vscode.ExtensionContext) {
       }
     }
     setMode('refactor');
+
+    if (renamePromiseResolver) {
+      renamePromiseResolver(); // Resolve the promise
+      renamePromiseResolver = null; // Reset for future renames
+    }
   });
 }
 

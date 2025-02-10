@@ -1,0 +1,5 @@
+{
+  "phpFileRefactoring.excludeOwnFileTypeName": false,
+  "phpFileRefactoring.safeRefactoring": true,
+  "phpFileRefactoring.autoSaveFiles": true
+}
